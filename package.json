@@ -1,0 +1,65 @@
+{
+  "name": "@szum-tech/oxlint-config",
+  "version": "0.1.0",
+  "description": "Oxlint configuration for TypeScript projects",
+  "keywords": [
+    "oxlint",
+    "oxlint-config",
+    "react",
+    "oxlintconfig",
+    "szum-tech"
+  ],
+  "homepage": "https://github.com/JanSzewczyk/oxlint-config#readme",
+  "bugs": {
+    "url": "https://github.com/JanSzewczyk/oxlint-config/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JanSzewczyk/oxlint-config.git"
+  },
+  "license": "MIT",
+  "author": "Jan Szewczyk (Szum-Tech)",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "oxlint .",
+    "lint:ci": "oxlint . -f sarif -o oxlint-results.sarif",
+    "lint:fix": "oxlint . --fix",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vitest/eslint-plugin": "^1.6.23",
+    "globals": "^17.7.0"
+  },
+  "devDependencies": {
+    "@szum-tech/prettier-config": "^1.6.2",
+    "@szum-tech/semantic-release-config": "^2.3.7",
+    "@types/node": "^25.9.5",
+    "oxlint": "^1.87.0",
+    "oxlint-tsgolint": "^7.0.2004",
+    "prettier": "^3.9.5",
+    "semantic-release": "^25.0.6",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "oxlint": ">=1.87.0",
+    "oxlint-tsgolint": ">=7.0.2000"
+  },
+  "peerDependenciesMeta": {
+    "oxlint-tsgolint": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

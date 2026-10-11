@@ -1,0 +1,80 @@
+name: PR Checks ✅
+
+on:
+  pull_request:
+
+env:
+  NODE_VERSION: 24.x
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  prettier:
+    name: Prettier 🧹
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code 📚
+        uses: actions/checkout@v6
+      - name: Set up Node 🟢
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - name: Install dependencies ⚙️
+        run: npm ci
+      - name: Prettier Check 🧹
+        run: npm run prettier:check
+
+  lint:
+    name: Oxlint ⚡
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code 📚
+        uses: actions/checkout@v6
+      - name: Set up Node 🟢
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - name: Install dependencies ⚙️
+        run: npm ci
+      - name: Oxlint Check ⚡
+        run: npm run lint:ci
+        continue-on-error: true
+      - name: Upload Oxlint results to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: oxlint-results.sarif
+          wait-for-processing: true
+
+  build:
+    name: Build 🏗️
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code 📚
+        uses: actions/checkout@v6
+      - name: Set up Node 🟢
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - name: Install packages ⚙️
+        run: npm ci
+      - name: Build Check 🏗️
+        run: npm run build
+
+  dependency-review:
+    name: Dependency Review 👀
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code 📚
+        uses: actions/checkout@v6
+      - name: Dependency Review 👀
+        uses: actions/dependency-review-action@v5
+        with:
+          comment-summary-in-pr: on-failure

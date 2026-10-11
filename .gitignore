@@ -1,0 +1,11 @@
+/node_modules
+
+/.idea
+
+# BUILD
+/dist
+
+# REPORTS
+/oxlint-results.sarif
+
+.claude/settings.local.json

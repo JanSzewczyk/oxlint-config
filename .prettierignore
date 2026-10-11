@@ -1,0 +1,8 @@
+# dependencies
+/.vscode
+/.idea
+/node_modules
+/docs
+
+/CHANGELOG.md
+/README.md
