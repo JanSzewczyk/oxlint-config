@@ -50,6 +50,23 @@ Verified against `oxlint@1.87.0` / `oxlint-tsgolint@7.0.2004` (2026-10-11).
   `eslint(no-array-constructor)` / `eslint(no-unused-vars)` even when configured under the `typescript/` key). The "turn
   the bare rule off, turn the `@typescript-eslint/` one on" dance from `eslint-config` isn't needed for a shared rule
   identity — only the `files` globs on the override matter for scoping.
+- `oxlint` has **no `-o`/`--output-file` flag** — `-f sarif` (or any other format) always writes to stdout. The
+  `lint:ci` script redirects it with the shell (`oxlint . -f sarif > oxlint-results.sarif`), not a CLI flag like
+  `eslint`'s `-o`.
+- `typescript/no-floating-promises` / `typescript/no-misused-promises` are only added to the config when
+  `oxlint-tsgolint` is detected as installed (`hasTsgolint` in `src/index.ts`). A TypeScript consumer who hasn't
+  installed it gets every other rule but **not** these two — confirmed side by side against `eslint-config` on the same
+  sample file (which always enforces them, since typescript-eslint's project service was never optional there).
+  Installing `oxlint-tsgolint` closes this gap completely; without it, this is a deliberate, documented trade-off
+  (graceful degradation over a hard crash), not an oversight.
+
+## Verified parity (2026-10-11)
+
+Side-by-side run of `@szum-tech/eslint-config` (via the ESLint Node API) and `@szum-tech/oxlint-config` (via the real
+`oxlint` CLI) against the same deliberately-broken `sample.ts` (`scratchpad/spike/compare/` in the migration session —
+not checked into either repo): both caught the same 6 distinct problems (warning comment, duplicate import, unused
+parameter, `any`, `console.log`, floating promise) once `oxlint-tsgolint` was installed. `oxlint` also dogfooded cleanly
+against `eslint-config`'s own source tree with zero diagnostics, matching `eslint-config`'s own `npm run lint`.
 
 ## Revisit triggers
 
