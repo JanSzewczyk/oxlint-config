@@ -30,9 +30,16 @@ Verified against `oxlint@1.87.0` / `oxlint-tsgolint@7.0.2004` (2026-10-11).
 
 ## Behavioral / config differences (not gaps, just different from eslint-config)
 
-- `settings.react.version: "detect"` is rejected (`invalid major version in settings.react.version`). We omit
-  `settings.react.version` entirely — rules worked correctly without it in testing.
+- `settings.react.version: "detect"` is rejected (`invalid major version in settings.react.version`) — but a **real
+  semver string works fine**. `src/index.ts` now reads it from the installed `react/package.json` (not the semver range
+  in the consumer's `package.json`) and falls back to omitting the field if that lookup fails.
 - `settings` is not supported inside `overrides` blocks — only at the top level of the config.
+- `extends` (JSON and TypeScript) only propagates `rules`, `plugins`, `categories` and `overrides` — confirmed
+  empirically on `oxlint@1.87.0` with a two-config test (`base.oxlintrc.json` + `child.oxlintrc.json` extending it).
+  `env`, `globals`, `ignorePatterns`, `settings` and `options` do **not** propagate through `extends`; a config that
+  wraps this package with `extends` instead of re-exporting it directly must re-declare those itself. Doesn't affect
+  this package's own recommended usage (direct re-export / `createOxlintConfig()`), only consumers who additionally wrap
+  it with their own `extends`.
 - `vitest/no-focused-tests` does not accept rule options (only a severity) — the old `{ fixable: false }` option from
   `eslint-plugin-vitest` has no equivalent and is simply dropped.
 - `react/jsx-uses-react` / `react/jsx-uses-vars` have no oxlint equivalent, but are not needed: oxlint's native parser
@@ -53,6 +60,22 @@ Verified against `oxlint@1.87.0` / `oxlint-tsgolint@7.0.2004` (2026-10-11).
 - `oxlint` has **no `-o`/`--output-file` flag** — `-f sarif` (or any other format) always writes to stdout. The
   `lint:ci` script redirects it with the shell (`oxlint . -f sarif > oxlint-results.sarif`), not a CLI flag like
   `eslint`'s `-o`.
+- The package had no `exports` map (only legacy `main`/`module`/`types` fields). Without it, Node's ESM resolver falls
+  back to `main` (`dist/index.cjs`) even for `import` — the `.cjs` extension forces CJS loading regardless of the
+  importer being ESM. This was invisible while `src/index.ts` had only a single `export default`, but broke the moment a
+  named export (`createOxlintConfig`) was added: `import config from "@szum-tech/oxlint-config"` (and
+  `export { default } from "..."`) bound to the _whole_ CJS `module.exports` object (`{ default, createOxlintConfig }`)
+  instead of unwrapping `.default`, and oxlint's config loader then rejected the result for an unknown `default` field.
+  Fixed by adding an `exports` map (`"."` → `{ types, import, require }`) so ESM importers load the real ESM build
+  (`dist/index.js`) directly, bypassing CJS interop entirely. Confirmed by side-by-side testing the old single-export
+  build (worked) against the new multi-export build without (broken) and with (fixed) the `exports` map.
+- `import/consistent-type-specifier-style: "prefer-inline"` and `typescript/consistent-type-imports`'s
+  `fixStyle: "inline-type-imports"` both fight Biome's own formatting of pure-type-only imports back to the top-level
+  `import type { Foo } from "foo"` form. Found while piloting this package against a Biome-formatted project
+  (`nextjs-szumplate`): running `oxlint --fix` then `biome check --write` on the same files exactly cancelled each
+  other's edit on every affected file. Switched both to their top-level-preferring equivalents (`"prefer-top-level"` /
+  `"separate-type-imports"`, the latter also `oxlint`'s own default) to stop fighting Biome/Prettier instead of guessing
+  which tool should "win".
 - `typescript/no-floating-promises` / `typescript/no-misused-promises` are only added to the config when
   `oxlint-tsgolint` is detected as installed (`hasTsgolint` in `src/index.ts`). A TypeScript consumer who hasn't
   installed it gets every other rule but **not** these two — confirmed side by side against `eslint-config` on the same

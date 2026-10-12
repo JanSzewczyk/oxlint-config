@@ -42,6 +42,12 @@ project needs.
 - **Type-aware TypeScript rules** (`no-floating-promises`, `no-misused-promises`) automatically turn on when
   [`oxlint-tsgolint`](https://www.npmjs.com/package/oxlint-tsgolint) is installed — and are simply skipped (not a
   crash) when it isn't.
+- **Real `settings.react.version`** — read from the installed `react/package.json`, not the semver range in your
+  `package.json` (oxlint rejects `"detect"`).
+- **`settings.next.rootDir`** auto-detected from the nearest `next.config.*`, for monorepos where the Next.js app
+  root differs from the config file's location.
+- **Overridable detection** via `createOxlintConfig({ detect, baseDir, nextRootDir })` — see
+  [Usage](#-usage) — for monorepos or to intentionally disable a detected rule set.
 - **Zero runtime dependencies** — everything above is native to `oxlint` (plugins, globals via `env`, settings) —
   this package only depends on `oxlint`/`oxlint-tsgolint` as peers.
 
@@ -115,6 +121,39 @@ export { default } from "@szum-tech/oxlint-config";
 
 Run `oxlint` and the config banner reports which feature sets it detected in your project (on stderr, so it never
 interferes with `oxlint`'s own stdout output or its `--lsp` mode).
+
+### 🏭 Factory function (overriding a single detection)
+
+The default export runs auto-detection with no way to tweak a single flag. For that, call
+`createOxlintConfig()` directly instead:
+
+```typescript
+// oxlint.config.ts
+import { createOxlintConfig } from "@szum-tech/oxlint-config";
+
+export default createOxlintConfig({
+  // Resolve the consumer's package.json/installed versions from here instead
+  // of `process.cwd()` — recommended for editors/LSP and monorepos.
+  baseDir: import.meta.dirname,
+  // Force a detection on/off, bypassing the package.json inspection for it.
+  detect: { next: false },
+  // Monorepos: explicit Next.js app root for `settings.next.rootDir`.
+  // Auto-detected by default (nearest `next.config.*`); pass `false` to opt out.
+  nextRootDir: "./apps/web"
+});
+```
+
+Don't import both the default export and call `createOxlintConfig()` yourself in the same file — each one runs
+its own detection pass and prints its own banner.
+
+### ⚠️ `extends` only carries some fields
+
+If your own `oxlint.config.ts` wraps this package with `extends` instead of re-exporting it directly, know that
+`extends` (both in `.oxlintrc.json` and `oxlint.config.ts`) only propagates `rules`, `plugins`, `categories` and
+`overrides` — confirmed empirically against `oxlint@1.87.0`. It does **not** propagate `env`, `globals`,
+`ignorePatterns`, `settings` (so `settings.react.version`/`settings.next.rootDir`/`settings.vitest.typecheck`
+are dropped) or `options` (so `options.typeAware` is dropped). If you need those, re-declare them yourself
+alongside `extends`, or just use the direct re-export / factory function above instead.
 
 ---
 

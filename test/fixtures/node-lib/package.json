@@ -1,0 +1,9 @@
+{
+  "name": "node-lib-fixture",
+  "private": true,
+  "type": "module",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
