@@ -20,6 +20,13 @@
   "license": "MIT",
   "author": "Jan Szewczyk (Szum-Tech)",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -33,6 +40,7 @@
     "lint:fix": "oxlint . --fix",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -44,7 +52,9 @@
     "prettier": "^3.9.5",
     "semantic-release": "^25.0.6",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   },
   "peerDependencies": {
     "oxlint": ">=1.87.0",
