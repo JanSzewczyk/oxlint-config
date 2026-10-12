@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { defineConfig, type OxlintConfig } from "oxlint";
+import { defineConfig } from "oxlint";
+import type { OxlintConfig } from "oxlint";
 
 const logger = console;
 
@@ -278,7 +279,11 @@ export function createOxlintConfig(options: CreateOxlintConfigOptions = {}): Oxl
   rules["import/consistent-type-specifier-style"] = [WARN, "prefer-top-level"];
   rules["import/no-named-as-default"] = WARN;
   rules["import/no-named-as-default-member"] = WARN;
-  rules["import/no-duplicates"] = [WARN, { preferInline: true }];
+  // `preferInline: false` (the default) — must agree with the top-level
+  // preference above, or the two rules fight: `no-duplicates` would want a
+  // type-only and a value import from the same module merged inline, while
+  // `consistent-type-specifier-style` wants them kept as separate statements.
+  rules["import/no-duplicates"] = [WARN, { preferInline: false }];
   // `import/order` has no oxlint equivalent — see KNOWN_GAPS.md.
 
   const overrides: NonNullable<OxlintConfig["overrides"]> = [];
