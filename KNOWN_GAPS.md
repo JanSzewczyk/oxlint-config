@@ -69,6 +69,13 @@ Verified against `oxlint@1.87.0` / `oxlint-tsgolint@7.0.2004` (2026-10-11).
   Fixed by adding an `exports` map (`"."` → `{ types, import, require }`) so ESM importers load the real ESM build
   (`dist/index.js`) directly, bypassing CJS interop entirely. Confirmed by side-by-side testing the old single-export
   build (worked) against the new multi-export build without (broken) and with (fixed) the `exports` map.
+- `import/consistent-type-specifier-style: "prefer-inline"` and `typescript/consistent-type-imports`'s
+  `fixStyle: "inline-type-imports"` both fight Biome's own formatting of pure-type-only imports back to the top-level
+  `import type { Foo } from "foo"` form. Found while piloting this package against a Biome-formatted project
+  (`nextjs-szumplate`): running `oxlint --fix` then `biome check --write` on the same files exactly cancelled each
+  other's edit on every affected file. Switched both to their top-level-preferring equivalents (`"prefer-top-level"` /
+  `"separate-type-imports"`, the latter also `oxlint`'s own default) to stop fighting Biome/Prettier instead of guessing
+  which tool should "win".
 - `typescript/no-floating-promises` / `typescript/no-misused-promises` are only added to the config when
   `oxlint-tsgolint` is detected as installed (`hasTsgolint` in `src/index.ts`). A TypeScript consumer who hasn't
   installed it gets every other rule but **not** these two — confirmed side by side against `eslint-config` on the same

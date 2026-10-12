@@ -270,7 +270,12 @@ export function createOxlintConfig(options: CreateOxlintConfigOptions = {}): Oxl
     // default) — setting it to any value, including "off", is a hard config
     // error. It was OFF in eslint-config anyway, so there's nothing to port.
   };
-  rules["import/consistent-type-specifier-style"] = [WARN, "prefer-inline"];
+  // `prefer-top-level` (`import type { Foo } from "foo"`), not `prefer-inline`
+  // — the latter actively fights Biome/Prettier, which normalize a
+  // pure-type-only import back to the top-level `import type` form. Confirmed
+  // by piloting this package against a Biome-formatted project: `oxlint --fix`
+  // followed by `biome check --write` exactly cancelled each other's edit.
+  rules["import/consistent-type-specifier-style"] = [WARN, "prefer-top-level"];
   rules["import/no-named-as-default"] = WARN;
   rules["import/no-named-as-default-member"] = WARN;
   rules["import/no-duplicates"] = [WARN, { preferInline: true }];
@@ -374,12 +379,16 @@ export function createOxlintConfig(options: CreateOxlintConfigOptions = {}): Oxl
             ignoreRestSiblings: true
           }
         ],
+        // `fixStyle: "separate-type-imports"` to match the top-level style
+        // used for `import/consistent-type-specifier-style` above — same
+        // reasoning: "inline-type-imports" fights Biome/Prettier's own
+        // normalization of mixed type+value imports.
         "typescript/consistent-type-imports": [
           WARN,
           {
             prefer: "type-imports",
             disallowTypeAnnotations: true,
-            fixStyle: "inline-type-imports"
+            fixStyle: "separate-type-imports"
           }
         ],
 
