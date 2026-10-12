@@ -1,77 +1,124 @@
-# @szum-tech/oxlint-config
+<div align="center">
 
-[![npm](https://img.shields.io/npm/v/@szum-tech/oxlint-config)](https://www.npmjs.com/package/@szum-tech/oxlint-config)
-[![MIT License](https://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://github.com/JanSzewczyk/oxlint-config/blob/main/LICENSE)
+# 📦 @szum-tech/oxlint-config
+
+[![npm version](https://img.shields.io/npm/v/@szum-tech/oxlint-config.svg)](https://www.npmjs.com/package/@szum-tech/oxlint-config)
+[![npm downloads](https://img.shields.io/npm/dm/@szum-tech/oxlint-config.svg)](https://www.npmjs.com/package/@szum-tech/oxlint-config)
+[![Types](https://img.shields.io/npm/types/@szum-tech/oxlint-config)](https://www.npmjs.com/package/@szum-tech/oxlint-config)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/JanSzewczyk/oxlint-config/actions/workflows/pr-check.yml/badge.svg)](https://github.com/JanSzewczyk/oxlint-config/actions/workflows/pr-check.yml)
+
+**A shared, auto-detecting oxlint configuration for TypeScript, React and Next.js projects**
+
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Scripts](#-scripts) • [Known Limitations](#-known-limitations)
+
+</div>
 
 ---
 
-A shared [`oxlint`](https://oxc.rs/docs/guide/usage/linter) configuration, published as an npm package. It is the
-`oxlint`-based sibling of [`@szum-tech/eslint-config`](https://github.com/JanSzewczyk/eslint-config): same
-auto-detection philosophy, same package conventions — different (much faster, Rust-based) linting engine underneath.
+## 👋 Hello there!
 
-## 📚 Features
+`@szum-tech/oxlint-config` is a shared [`oxlint`](https://oxc.rs/docs/guide/usage/linter) configuration, published
+as an npm package. It is the `oxlint`-based sibling of
+[`@szum-tech/eslint-config`](https://github.com/JanSzewczyk/eslint-config): same auto-detection philosophy, same
+package conventions — a different (much faster, Rust-based) linting engine underneath. Drop it into an
+`oxlint.config.ts` file and it inspects your `package.json` at lint time, turning on exactly the rule sets your
+project needs.
+
+## ✨ Features
 
 - **Auto-detection** — automatically enables rule sets based on your project's dependencies, the same way
   `@szum-tech/eslint-config` does: drop the package into `oxlint.config.ts` and it inspects your `package.json` at
   lint time.
-- **TypeScript** support — core rules always on; `@typescript-eslint`-equivalent rules (`no-explicit-any`,
-  `no-floating-promises`, `consistent-type-imports`, ...) when `typescript` is detected.
-- **React & React Hooks** support (`jsx-key`, `rules-of-hooks`, `exhaustive-deps`, ...) when `react` is detected.
-- **Next.js** support (the full `@next/eslint-plugin-next` recommended rule set, same severities) when `next` is
-  detected.
-- **Vitest** support (`expect-expect`, `no-focused-tests`, ...) when `vitest` is detected, scoped to test files the
-  same way `eslint-config` scopes with `files`/`ignores` — oxlint calls it `files`/`excludeFiles`.
+- **[TypeScript](https://www.typescriptlang.org/) support** — core rules always on; `@typescript-eslint`-equivalent
+  rules (`no-explicit-any`, `no-floating-promises`, `consistent-type-imports`, ...) when `typescript` is detected.
+- **[React](https://react.dev/) & React Hooks support** (`jsx-key`, `rules-of-hooks`, `exhaustive-deps`, ...) when
+  `react` is detected.
+- **[Next.js](https://nextjs.org/) support** (the full `@next/eslint-plugin-next` recommended rule set, same
+  severities) when `next` is detected.
+- **[Vitest](https://vitest.dev/) support** (`expect-expect`, `no-focused-tests`, ...) when `vitest` is detected,
+  scoped to test files the same way `eslint-config` scopes with `files`/`ignores` — oxlint calls it
+  `files`/`excludeFiles`.
 - **Type-aware TypeScript rules** (`no-floating-promises`, `no-misused-promises`) automatically turn on when
-  `oxlint-tsgolint` is installed — and are simply skipped (not a crash) when it isn't.
-- **Zero runtime dependencies.** Everything above is native to `oxlint` (plugins, globals via `env`, settings) — this
-  package only depends on `oxlint`/`oxlint-tsgolint` as peers.
+  [`oxlint-tsgolint`](https://www.npmjs.com/package/oxlint-tsgolint) is installed — and are simply skipped (not a
+  crash) when it isn't.
+- **Zero runtime dependencies** — everything above is native to `oxlint` (plugins, globals via `env`, settings) —
+  this package only depends on `oxlint`/`oxlint-tsgolint` as peers.
 
 `@testing-library/dom`, `@testing-library/jest-dom`, `@playwright/test` and `storybook` are **detected** (shown in
 the console banner) but their rules are **not enforced** — `oxlint` has no native plugin for them yet. See
-[KNOWN_GAPS.md](./KNOWN_GAPS.md) for the full list of what's not covered (`import/order`, `jest-dom`,
-`testing-library`, `playwright`, `storybook`, `react/no-deprecated`) and why.
+[KNOWN_GAPS.md](./KNOWN_GAPS.md) for the full list of what's not covered and why.
 
-## 🎯 Getting Started
+---
 
-### ⚙️ Installation
+## 📖 Table of Contents
+
+- [✨ Features](#-features)
+- [📦 Installation](#-installation)
+- [🚀 Usage](#-usage)
+- [📃 Scripts](#-scripts)
+- [🤖 Minimal GitHub Oxlint Check Workflow](#-minimal-github-oxlint-check-workflow)
+- [📒 Known Limitations](#-known-limitations)
+- [📁 Project Structure](#-project-structure)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
+- [📧 Contact & Support](#-contact--support)
+
+---
+
+## 📦 Installation
 
 **Requirements:**
 
 - **oxlint** v1.87.0 or higher
 - **Node.js** v22.18+ or v24.x+ (needed to load a TypeScript `oxlint.config.ts` file natively)
 
-```shell
-# NPM
+```bash
 npm install --save-dev oxlint @szum-tech/oxlint-config
+```
 
-# YARN
-yarn add -D oxlint @szum-tech/oxlint-config
-
-# PNPM
+```bash
 pnpm add --save-dev oxlint @szum-tech/oxlint-config
+```
 
-# BUN
+```bash
+yarn add -D oxlint @szum-tech/oxlint-config
+```
+
+```bash
 bun add --dev oxlint @szum-tech/oxlint-config
 ```
 
+### 🔗 Peer Dependencies
+
+- [![oxlint](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/oxlint-config/peer/oxlint?label=oxlint)](https://oxc.rs/docs/guide/usage/linter) — required, the linting engine this package configures
+- [![oxlint-tsgolint](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/oxlint-config/peer/oxlint-tsgolint?label=oxlint-tsgolint)](https://www.npmjs.com/package/oxlint-tsgolint) — optional, enables type-aware TypeScript rules
+
 To enable the type-aware TypeScript rules, also install `oxlint-tsgolint`:
 
-```shell
+```bash
 npm install --save-dev oxlint-tsgolint
 ```
 
-### Configuration
+---
+
+## 🚀 Usage
 
 Unlike ESLint's flat config, `oxlint` config files cannot import npm packages unless they are written in
 TypeScript/JavaScript. Auto-detection requires that, so consumers **must** use `oxlint.config.ts`
 (`.oxlintrc.json` cannot `import` this package):
 
-```ts
+```typescript
 // oxlint.config.ts
 export { default } from "@szum-tech/oxlint-config";
 ```
 
-## 💻 Scripts
+Run `oxlint` and the config banner reports which feature sets it detected in your project (on stderr, so it never
+interferes with `oxlint`'s own stdout output or its `--lsp` mode).
+
+---
+
+## 📃 Scripts
 
 Suggested scripts for your `package.json`:
 
@@ -85,14 +132,15 @@ Suggested scripts for your `package.json`:
 }
 ```
 
-**Scripts description:**
+| Script     | Description                                                                                             |
+| ---------- | --------------------------------------------------------------------------------------------------------- |
+| `lint`     | Lints the code using `oxlint`                                                                           |
+| `lint:ci`  | Lints the code for CI — `oxlint` has no `-o`/output-file flag like ESLint's, so the SARIF report is redirected to a file with the shell instead |
+| `lint:fix` | Automatically fixes linting errors where a fix exists                                                   |
 
-- `lint`: Lints the code using `oxlint`
-- `lint:ci`: Lints the code for CI — `oxlint` has no `-o`/output-file flag like ESLint's, so the SARIF report is
-  redirected to a file with the shell instead
-- `lint:fix`: Automatically fixes linting errors where a fix exists
+---
 
-## 🚀 Minimal GitHub Oxlint check workflow
+## 🤖 Minimal GitHub Oxlint Check Workflow
 
 ```yaml
 name: PR Checks ✅
@@ -124,11 +172,76 @@ jobs:
           wait-for-processing: true
 ```
 
-## 📒 Known limitations
+---
 
-See [KNOWN_GAPS.md](./KNOWN_GAPS.md).
+## 📒 Known Limitations
+
+`oxlint` doesn't yet have native equivalents for every rule `@szum-tech/eslint-config` covers — notably
+`import/order`, `jest-dom`, `testing-library`, `playwright`, `storybook`, and `react/no-deprecated`. See
+[KNOWN_GAPS.md](./KNOWN_GAPS.md) for the full, versioned breakdown of what's missing and why.
+
+---
+
+## 📁 Project Structure
+
+```
+oxlint-config/
+├── .github/              # CI workflows (PR checks, CodeQL, npm publish)
+├── dist/                 # Build output (ESM + CJS + type declarations)
+├── src/
+│   └── index.ts          # Auto-detection logic and the oxlint config itself
+├── KNOWN_GAPS.md          # Tracked parity gaps vs. @szum-tech/eslint-config
+├── tsup.config.js         # Build configuration (tsup)
+└── tsconfig.json          # TypeScript configuration
+```
+
+### 🔑 Key Directories
+
+- **`src/`** — single entry point (`index.ts`) that detects installed dependencies and builds the `oxlint`
+  config object accordingly
+- **`dist/`** — generated by `tsup`; published to npm, never edited by hand
+
+### ⚙️ Important Configuration Files
+
+- **`tsup.config.js`** — builds `src/index.ts` into dual ESM/CJS output with type declarations
+- **`release.config.js`** — `semantic-release` configuration for automated versioning and npm publishing
+- **`prettier.config.ts`** — re-exports `@szum-tech/prettier-config`
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/)
+4. Run checks: `npm run lint`, `npm run typecheck`, `npm run prettier:check`
+5. Open a Pull Request
+
+---
 
 ## 📜 License
 
-This project is licensed under the terms of the
-[MIT license](https://github.com/JanSzewczyk/oxlint-config/blob/main/LICENSE).
+This package is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📧 Contact & Support
+
+- 🐛 [Open an issue](https://github.com/JanSzewczyk/oxlint-config/issues)
+- ⭐ [Star this repository](https://github.com/JanSzewczyk/oxlint-config)
+- 📦 [View on npm](https://www.npmjs.com/package/@szum-tech/oxlint-config)
+- 👨‍💻 Check out the maintainer's [GitHub profile](https://github.com/JanSzewczyk)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Jan Szewczyk](https://github.com/JanSzewczyk)**
+
+If this package helped you, please consider giving it a ⭐ on GitHub!
+
+[⬆ Back to Top](#-szum-techoxlint-config)
+
+</div>
